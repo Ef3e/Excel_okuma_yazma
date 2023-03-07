@@ -3,7 +3,10 @@ from tkinter import messagebox
 from tkinter import ttk
 import openpyxl as xl
 import re
- 
+"""
+'ogr.xlsx' adli dosya ile aynı konumda
+olmasına dikkat ediniz
+"""
 window = tk.Tk()
 arka_plan = "#4A66F0"
 window.configure(bg=arka_plan)
