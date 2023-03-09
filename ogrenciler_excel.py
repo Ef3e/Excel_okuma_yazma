@@ -2,25 +2,31 @@ import tkinter as tk
 from tkinter import ttk
 import openpyxl as xl
 import re
+
 """
 'ogr.xlsx' adli dosya ile aynı konumda
 olmasına dikkat ediniz
 """
+
 window = tk.Tk()
 arka_plan = "#4A66F0"
 window.configure(bg=arka_plan)
 window.geometry("400x250+500+200")
 window.title("Ogrenciler")
 window.resizable(height=False,width=False)
-
+lab = tk.Label(text="Created by Efe Kocak",bg=window["bg"]).place(x=10,y=220)
 ogrenciler = []
+
 class ogrenci():
-    def __init__(self,isim,sinif = str,puan_durum = "",yazildi = False):
+    sayim = 0
+    def __init__(self,isim,sinif = str,puan_durum = ""):
         self.isim = isim.upper()
         self.sinif = sinif.upper()
         self.puan = puan_durum
         ogrenciler.append(self)
-        self.yazildi = yazildi
+        sayi = ogrenci.sayim 
+        self.sayi = sayi
+        ogrenci.sayim += 1
 
 oku = xl.load_workbook("ogr.xlsx")
 aktif = oku.active
@@ -111,24 +117,31 @@ def excel_yaz_yarim():
 fontayar = ("arial",12,"bold")
 
 def bilgi():
+    global arti_sayi
+    global f
+    global b
+    global c
+    global eksi_sayi
+    global yarim_sayi
     arti_sayi = 0
     eksi_sayi = 0
     yarim_sayi = 0
-    yellow = "#F3EA2B"
+    yellow = "#7760EC"
     secilen_ogr = sec()
     for a in ogrenciler:
-        if a.isim == secilen_ogr and a.sinif == sinif_combo_box.get():
+        if a.isim == secilen_ogr:
             if secilen_ogr != None:
                 wd = tk.Tk()
                 wd.config(bg=yellow)
                 wd.resizable(height=False,width=False)
-                wd.geometry("200x130+900+200")
+                wd.geometry("200x150+900+200")
                 entr_isim = tk.Entry(wd,font=fontayar,width=20,justify=tk.CENTER)
-                entr_isim.insert(0,secilen_ogr+"  "+sinif_combo_box.get())
-                entr_isim.place(x=10,y=20)
-                lab_arti = tk.Label(wd,text="+",font=("arial",14,"bold"),bg=yellow).place(x=30,y=50)
-                lab_yarim = tk.Label(wd,text="﬩",font=("arial",14,"bold"),bg=yellow).place(x=90,y=50)
-                lab_yarim = tk.Label(wd,text="-",font=("arial",14,"bold"),bg=yellow).place(x=150,y=50)
+                entr_isim.insert(0,secilen_ogr)
+                entr_isim.place(x=10,y=40)
+                lab_sinif = tk.Label(wd,text=a.sinif,font=("arial",14,"bold"),bg=yellow).place(x=80,y=5)
+                lab_arti = tk.Label(wd,text="+",font=("arial",14,"bold"),bg=yellow).place(x=30,y=70)
+                lab_yarim = tk.Label(wd,text="﬩",font=("arial",14,"bold"),bg=yellow).place(x=90,y=70)
+                lab_yarim = tk.Label(wd,text="-",font=("arial",14,"bold"),bg=yellow).place(x=150,y=70)
                 for u in range(1,aktif.max_row+1):
                     isimler = aktif[f"A{u}"].value.upper()
                     soy_isim = aktif[f"B{u}"].value.upper()
@@ -139,13 +152,36 @@ def bilgi():
                             if a == "+":
                                 arti_sayi += 1
                             if a == "-":
-                                eksi_sayi += 1
+                                eksi_sayi+=1
                             if a == "﬩":
-                                yarim_sayi += 1
+                                yarim_sayi+=1
                         break
-                tk.Button(wd,text=arti_sayi,font="bold 12",width=5).place(x=10,y=80)
-                tk.Button(wd,text=yarim_sayi,font="bold 12",width=5).place(x=70,y=80)
-                tk.Button(wd,text=eksi_sayi,font="bold 12",width=5).place(x=130,y=80)
+                def yaz_a(belirgec = "+"):
+                    global arti_sayi
+                    global eksi_sayi
+                    global yarim_sayi
+                    if belirgec == "+":
+                        excel_yaz_arti()
+                        arti_sayi += 1
+                        f.config(text=arti_sayi)
+                    if belirgec == "-":
+                        excel_yaz_eksi()
+                        eksi_sayi += 1
+                        b.config(text=eksi_sayi)
+                    if belirgec == "f":
+                        excel_yaz_yarim()
+                        yarim_sayi += 1
+                        c.config(text=yarim_sayi)
+                def yaz_b():
+                    yaz_a(belirgec="-")
+                def yaz_c():
+                    yaz_a(belirgec="f")
+                f=tk.Button(wd,text=arti_sayi,font="bold 12",width=5,command=yaz_a)
+                f.place(x=10,y=100)
+                b=tk.Button(wd,text=yarim_sayi,font="bold 12",width=5,command=yaz_b)
+                b.place(x=70,y=100)
+                c=tk.Button(wd,text=eksi_sayi,font="bold 12",width=5,command=yaz_c)
+                c.place(x=130,y=100)
                 break
 ogrenci_sec = tk.Button(window,text="SEC",command=ogrenci_al,width=10,font="bold 10")
 ogrenci_sec.place(x = 10,y=60)
@@ -169,6 +205,7 @@ def duzenler():
             wd.config(bg=yellow)
             wd.resizable(height=False,width=False)
             wd.geometry("170x150+900+200")
+            lab_sinif = tk.Label(wd,text=a.sinif,font=("arial",14,"bold"),bg=yellow).place(x=60,y=5)
             etiket = tk.Entry(wd,font="bold 12",width=18,justify=tk.CENTER)
             etiket.insert(0,a.isim)
             etiket.place(x=1,y=40)
@@ -197,5 +234,5 @@ kaydir = ttk.Scrollbar(window,command=ogrenci_list.yview)
 kaydir.pack(side="right", fill="y")
 ogrenci_list.config(yscrollcommand=kaydir.set)
 ogrenci_list.place(x=200,y=10)
-duzen = tk.Button(window,text="DUZENLE",font="bold 12",command=duzenler).place(x=10,y=180)
+duzen = tk.Button(window,text="DUZENLE",font=("Aharoni",12,"bold"),command=duzenler).place(x=10,y=180)
 window.mainloop()
